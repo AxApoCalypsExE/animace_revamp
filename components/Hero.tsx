@@ -5,12 +5,11 @@ import HeaderBox from "./HeaderBox";
 const Hero = () => {
   return (
     <section className="relative aspect-w-16 aspect-h-8 w-full">
-      <div
-        className="aspect-w-16 aspect-h-8 w-full h-full"
-      >
-        <div className="bg-cover bg-bottom bg-no-repeat" style={{ backgroundImage: 'url("defaultImg.jpg")' }}>
-
-        </div>
+      <div className="aspect-w-16 aspect-h-8 w-full h-full">
+        <div
+          className="bg-cover bg-bottom bg-no-repeat"
+          style={{ backgroundImage: 'url("defaultImg.jpg")' }}
+        />
         <HeaderBox />
       </div>
     </section>
@@ -18,5 +17,3 @@ const Hero = () => {
 };
 
 export default Hero;
-
-

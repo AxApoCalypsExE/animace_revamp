@@ -1,16 +1,16 @@
 "use client";
 
-import { account } from "@/app/appwrite";
+import { account, ID } from "@/app/appwrite";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import Link from "next/link";
-import { AppwriteException, Models } from "appwrite";
+import { useRouter } from "next/navigation";
+import { AppwriteException } from "appwrite";
 import { Eye, EyeOff, Mail } from "lucide-react";
 
 type SchemaType = z.infer<typeof schema>;
-type UserType = Models.User<Models.Preferences> | null;
 
 const schema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -29,9 +29,9 @@ const schema = z.object({
     }),
 });
 
-export default function SignIn() {
-  const [user, setUser] = useState<null | UserType>(null);
-  const [loading, setLoading] = useState(true);
+export default function SignUp() {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,39 +43,15 @@ export default function SignIn() {
     resolver: zodResolver(schema),
   });
 
-  useEffect(() => {
-    async function getUser() {
-      try {
-        const user = await account.get();
-        setUser(user);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    getUser();
-  }, []);
-
-  async function handleLogout() {
-    try {
-      await account.deleteSession("current");
-      setUser(null);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   const onSubmit: SubmitHandler<SchemaType> = async (data) => {
     try {
       setError(null);
-      await account.createEmailPasswordSession(data.email, data.password);
-      const user = await account.get();
-      setUser(user);
+      await account.create(ID.unique(), data.email, data.password);
+      router.push("/")
     } catch (error) {
       if (error instanceof AppwriteException) {
-        if (error.code === 401) {
-          setError("Invalid credentials. Please check the email and password.");
+        if (error.code === 409) {
+          setError("This email is already in use. Please try logging in.");
         } else {
           setError(error.message);
         }
@@ -86,26 +62,9 @@ export default function SignIn() {
     }
   };
 
-  if (loading) {
-    return (
-      <div>
-        <h1>Loading...</h1>
-      </div>
-    );
-  }
-
-  if (user) {
-    return (
-      <div className="min-h-screen min-w-full flex-center">
-        <h1>You&apos;ve logged in!</h1>
-        <button onClick={handleLogout}>Logout</button>
-      </div>
-    );
-  }
-
   return (
     <section className="flex min-h-screen flex-col items-center justify-center p-24 gap-5">
-      <h1>Sign In</h1>
+      <h1>Sign Up</h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-5 max-w-sm"
@@ -154,9 +113,9 @@ export default function SignIn() {
         </div>
       </form>
       <p>
-        Don&apos;t have an account with us?{" "}
-        <Link href="/sign-up" className="text-blue-500">
-          Sign up
+        Already have an account?{" "}
+        <Link href="/sign-in" className="text-blue-500">
+          Sign in
         </Link>
       </p>
     </section>

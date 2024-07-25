@@ -7,10 +7,14 @@
   --font-raleway: 'Raleway', sans-serif;
 }
 
+input {
+  color: black;
+  font-weight: 700;
+}
+
 body {
   font-family: var(--font-raleway);
 }
-
 
 @layer base {
   .dark {
@@ -96,6 +100,14 @@ body {
 }
 
 @layer utilities {
+  .navbarBg {
+    @apply to-slate-950/60 from-slate-900/60 bg-gradient-to-br bg-slate-900
+  }
+
+  .fade-top {
+    @apply content-none from-slate-950 to-slate-900/0 w-full h-[15vw] fixed z-[9999] bg-gradient-to-b
+  }
+
   .flex-center {
     @apply flex items-center justify-center;
   }
