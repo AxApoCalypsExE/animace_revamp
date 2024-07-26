@@ -1,18 +1,26 @@
 "use client";
 
-import { account, ID } from "@/app/appwrite";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppwriteException } from "appwrite";
-import { Eye, EyeOff, Mail } from "lucide-react";
+import { Eye, EyeOff, Mail, User } from "lucide-react";
+import { signUp } from "@/lib/user.actions";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-type SchemaType = z.infer<typeof schema>;
-
-const schema = z.object({
+const authSchema = z.object({
+  username: z.string().min(1, { message: "Username is required" }),
   email: z.string().email({ message: "Invalid email address" }),
   password: z
     .string()
@@ -32,26 +40,45 @@ const schema = z.object({
 export default function SignUp() {
   const router = useRouter();
 
+  const [user, setUser] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SchemaType>({
-    resolver: zodResolver(schema),
+  const form = useForm<z.infer<typeof authSchema>>({
+    resolver: zodResolver(authSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+    },
   });
 
-  const onSubmit: SubmitHandler<SchemaType> = async (data) => {
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = form;
+
+
+  const onSubmit = async (data: z.infer<typeof authSchema>) => {
+    console.log(data)
     try {
       setError(null);
-      await account.create(ID.unique(), data.email, data.password);
-      router.push("/")
+
+      const newUser = await signUp(data);
+
+      if (!newUser) {
+        console.log("Trouble making user");
+      }
+
+      if (newUser) {
+        router.push("/");
+      }
     } catch (error) {
       if (error instanceof AppwriteException) {
         if (error.code === 409) {
-          setError("This email is already in use. Please try logging in.");
+          setError(
+            "This email is already in use. Please try another email in."
+          );
         } else {
           setError(error.message);
         }
@@ -65,14 +92,119 @@ export default function SignUp() {
   return (
     <section className="flex min-h-screen flex-col items-center justify-center p-24 gap-5">
       <h1>Sign Up</h1>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
+      <Form {...form}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-5 max-w-sm"
+        >
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter your username"
+                    className="pr-8 relative"
+                    type="text"
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          {errors.username && (
+            <span className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
+              {errors.username.message}
+            </span>
+          )}
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter your email"
+                    className="pr-8 relative"
+                    type="email"
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          {errors.email && (
+            <span className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
+              {errors.email.message}
+            </span>
+          )}
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter your password"
+                    className="pr-8 relative"
+                    type="password"
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          {errors.password && (
+            <span className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
+              {errors.password.message}
+            </span>
+          )}
+          <div className="flex gap-5 relative justify-center">
+            <Button type="submit">Register</Button>
+            {error && (
+              <div className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
+                {error}
+              </div>
+            )}
+          </div>
+          <p>
+            Already have an account?{" "}
+            <Link href="/sign-in" className="text-blue-500">
+              Sign in
+            </Link>
+          </p>
+        </form>
+      </Form>
+    </section>
+  );
+}
+
+{/* <form
+        onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-5 max-w-sm"
       >
         <div className="relative w-full">
           <input
+            type="text"
+            placeholder="Username"
+            {...register("username")}
+            className="pr-8 relative"
+          />
+          <User className="text-muted-foreground absolute inset-y-0 right-0.5 leading-5 pr-[0.125rem]" />
+          {errors.email && (
+            <span className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
+              {errors.email.message}
+            </span>
+          )}
+        </div>
+        <div className="relative w-full">
+          <input
             type="email"
-            placeholder="Enter your email"
+            placeholder="Email"
             {...register("email")}
             className="pr-8 relative"
           />
@@ -86,7 +218,7 @@ export default function SignUp() {
         <div className="relative w-full">
           <input
             type={showPassword ? "text" : "password"}
-            placeholder="Enter your password"
+            placeholder="Password"
             {...register("password")}
             className="pr-8 relative"
           />
@@ -104,20 +236,11 @@ export default function SignUp() {
           )}
         </div>
         <div className="flex gap-5 relative justify-center">
-          <button type="submit">Login</button>
+          <button type="submit">Register</button>
           {error && (
             <div className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
               {error}
             </div>
           )}
         </div>
-      </form>
-      <p>
-        Already have an account?{" "}
-        <Link href="/sign-in" className="text-blue-500">
-          Sign in
-        </Link>
-      </p>
-    </section>
-  );
-}
+      </form> */}

@@ -8,11 +8,14 @@ import { z } from "zod";
 import Link from "next/link";
 import { AppwriteException, Models } from "appwrite";
 import { Eye, EyeOff, Mail } from "lucide-react";
+import { signIn } from "@/lib/user.actions";
+import { useRouter } from "next/navigation";
 
-type SchemaType = z.infer<typeof schema>;
+type SchemaType = z.infer<typeof authSchema>;
 type UserType = Models.User<Models.Preferences> | null;
 
-const schema = z.object({
+
+const authSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z
     .string()
@@ -30,6 +33,8 @@ const schema = z.object({
 });
 
 export default function SignIn() {
+  const router = useRouter();
+
   const [user, setUser] = useState<null | UserType>(null);
   const [loading, setLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -40,22 +45,8 @@ export default function SignIn() {
     handleSubmit,
     formState: { errors },
   } = useForm<SchemaType>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(authSchema),
   });
-
-  useEffect(() => {
-    async function getUser() {
-      try {
-        const user = await account.get();
-        setUser(user);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    getUser();
-  }, []);
 
   async function handleLogout() {
     try {
@@ -69,8 +60,11 @@ export default function SignIn() {
   const onSubmit: SubmitHandler<SchemaType> = async (data) => {
     try {
       setError(null);
-      await account.createEmailPasswordSession(data.email, data.password);
-      const user = await account.get();
+      const response = await signIn(data);
+
+      if (response) {
+        router.push("/")
+      }
       setUser(user);
     } catch (error) {
       if (error instanceof AppwriteException) {
@@ -80,19 +74,11 @@ export default function SignIn() {
           setError(error.message);
         }
       } else {
-        setError("An unexpected error occurred. Please try again later.");
+        setError("Invalid credentials. Please check the email and password.");
       }
       console.log(error);
     }
   };
-
-  if (loading) {
-    return (
-      <div>
-        <h1>Loading...</h1>
-      </div>
-    );
-  }
 
   if (user) {
     return (
