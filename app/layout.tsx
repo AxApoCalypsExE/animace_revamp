@@ -7,6 +7,9 @@ const raleway = Raleway({ subsets: ["latin"], variable: "--font-raleway" });
 export const metadata: Metadata = {
   title: "AnimAce",
   description: "The modern anime list website.",
+  icons: {
+    icon: "/AnimAceLogo.svg",
+  },
 };
 
 export default function RootLayout({
