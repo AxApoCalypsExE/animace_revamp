@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { fetchAniListData, fetchKitsuData } from './FetchAnimeData';
-import Image from 'next/image';
-
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import { cacheData, getCachedData } from "@/lib/localStorageUtils";
+import { fetchAniListData, fetchKitsuData } from "@/lib/FetchAnimeData";
 
 interface Media {
   id: number;
@@ -24,77 +24,82 @@ interface Media {
   format: string;
   coverImage: {
     extraLarge: string;
-    large: string;
-    medium: string;
-    color: string;
   };
   kitsuCoverImage?: string;
 }
 
-
 interface CarouselProps {
   genre: string;
+  data: Media[];
 }
 
-const Carousel: React.FC<CarouselProps> = ({ genre }) => {
-  const [data, setData] = useState<Media[]>([]);
-  const [loading, setLoading] = useState(true);
+const Carousel: React.FC<CarouselProps> = ({ genre, data }) => {
+  const [carouselData, setCarouselData] = useState<Media[]>(data);
 
   useEffect(() => {
     const fetchData = async () => {
-      const query = `
-        query {
-          Page(perPage: 30) {
-            media(genre: "${genre}", sort: POPULARITY_DESC) {
-              id
-              title {
-                romaji
-                english
+      if (typeof window !== "undefined") {
+        const cacheKey = `anilist_${genre}`;
+        const cachedData = getCachedData(cacheKey);
+
+        if (cachedData) {
+          setCarouselData(cachedData);
+        } else {
+          try {
+            const query = `
+              query {
+                Page(perPage: 30) {
+                  media(genre: "${genre}", sort: POPULARITY_DESC) {
+                    id
+                    title {
+                      romaji
+                      english
+                    }
+                    description
+                    genres
+                    episodes
+                    duration
+                    status
+                    startDate {
+                      year
+                      month
+                      day
+                    }
+                    format
+                    coverImage {
+                      extraLarge
+                    }
+                  }
+                }
               }
-              description
-              genres
-              episodes
-              duration
-              status
-              startDate {
-                year
-                month
-                day
-              }
-              format
-              coverImage {
-                extraLarge
-                large
-                medium
-                color
-              }
-            }
+            `;
+            const result = await fetchAniListData(query);
+            const mediaList = result.data.Page.media;
+
+            const mediaWithCovers = await Promise.all(
+              mediaList.map(async (anime: any) => {
+                const title = anime.title.english || anime.title.romaji;
+                try {
+                  const kitsuResult = await fetchKitsuData(title);
+                  const kitsuCoverImage =
+                    kitsuResult.data[0]?.attributes?.coverImage?.original || "";
+                  return { ...anime, kitsuCoverImage };
+                } catch (error) {
+                  console.error(
+                    `Error fetching Kitsu data for ${title}:`,
+                    error
+                  );
+                  return { ...anime, kitsuCoverImage: "" };
+                }
+              })
+            );
+
+            cacheData(cacheKey, mediaWithCovers);
+            setCarouselData(mediaWithCovers);
+          } catch (error) {
+            console.error("Error fetching data:", error);
           }
         }
-      `;
-      try {
-        const result = await fetchAniListData(query);
-        const mediaList = result.data.Page.media;
-
-        const mediaWithCovers = await Promise.all(
-          mediaList.map(async (anime: Media) => {
-            const title = anime.title.english || anime.title.romaji;
-            try {
-              const kitsuResult = await fetchKitsuData(title);
-              const kitsuCoverImage = kitsuResult.data[0]?.attributes?.coverImage?.original || "";
-              return { ...anime, kitsuCoverImage };
-            } catch (error) {
-              console.error(`Error fetching Kitsu data for ${title}:`, error);
-              return { ...anime, kitsuCoverImage: "" };
-            }
-          })
-        );
-
-        setData(mediaWithCovers);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -102,29 +107,24 @@ const Carousel: React.FC<CarouselProps> = ({ genre }) => {
   }, [genre]);
 
   return (
-    <div>
-      <h2>{genre.charAt(0).toUpperCase() + genre.slice(1)}</h2>
-      <div className="carousel">
-        {loading ? (
+    <div className="my-8">
+      <h2 className="text-2xl font-bold mb-4">{genre.charAt(0).toUpperCase() + genre.slice(1)}</h2>
+      <div className="flex overflow-x-auto space-x-4">
+        {carouselData.length === 0 ? (
           <p>Loading...</p>
         ) : (
-          data.map((anime) => (
-            <div key={anime.id} className="carousel-item">
+          carouselData.map((anime) => (
+            <div
+              key={anime.id}
+              className="flex-none w-[23vw] h-[32vw] relative"
+            >
               <Image
-                src={anime.kitsuCoverImage || anime.coverImage.extraLarge || anime.coverImage.large || anime.coverImage.medium}
+                src={anime.kitsuCoverImage || anime.coverImage.extraLarge}
                 alt={`${anime.title.english || anime.title.romaji} cover`}
-                width={390}
-                height={554}
-                layout="responsive"
+                layout="fill"
+                objectFit="cover"
+                className="rounded-lg"
               />
-              <h3>{anime.title.english || anime.title.romaji}</h3>
-              <p>{anime.description}</p>
-              <p><strong>Genres:</strong> {anime.genres.join(', ')}</p>
-              <p><strong>Episodes:</strong> {anime.episodes}</p>
-              <p><strong>Duration:</strong> {anime.duration} minutes</p>
-              <p><strong>Status:</strong> {anime.status}</p>
-              <p><strong>Start Date:</strong> {anime.startDate.year}-{anime.startDate.month}-{anime.startDate.day}</p>
-              <p><strong>Format:</strong> {anime.format}</p>
             </div>
           ))
         )}
@@ -132,5 +132,6 @@ const Carousel: React.FC<CarouselProps> = ({ genre }) => {
     </div>
   );
 };
+
 
 export default Carousel;
