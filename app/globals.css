@@ -92,20 +92,29 @@ body {
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border
   }
+
   body {
     @apply bg-background text-foreground overflow-x-hidden;
   }
 }
 
 @layer utilities {
+  .bg-purple {
+    @apply bg-[#a591ff]
+  }
+
   .navbarBg {
     @apply to-slate-950/60 from-slate-900/60 bg-gradient-to-br bg-slate-900
   }
 
   .fade-top {
-    @apply content-none from-slate-950 to-slate-900/0 w-full h-[15vw] fixed z-[9999] bg-gradient-to-b
+    @apply content-none from-slate-950 to-slate-900/0 w-full h-[8vw] fixed z-[9999] bg-gradient-to-b
+  }
+
+  .fade-bottom {
+    @apply content-none from-slate-950 to-slate-900/0 w-full h-[8vw] absolute bg-gradient-to-t
   }
 
   .flex-center {

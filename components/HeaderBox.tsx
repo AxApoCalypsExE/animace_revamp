@@ -4,6 +4,7 @@ import { Info, Play } from "lucide-react";
 import React from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import ClearCacheButton from "./ClearCache";
 
 const HeaderBox = () => {
   useGSAP(() => {
@@ -55,6 +56,8 @@ const HeaderBox = () => {
             <Info className="w-[1.75vw] h-[1.75vw] mr-[0.2vw]" />
             Info
           </button>
+        <ClearCacheButton />
+
         </div>
       </div>
     </div>
