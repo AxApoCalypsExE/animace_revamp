@@ -5,20 +5,35 @@ import { cn } from "@/lib/utils";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/all";
-import { Bell, Search, SquareUserRound } from "lucide-react";
+import { Bell, Filter, Search, SquareUserRound } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Input } from "./ui/input";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Navbar = () => {
+  const [active, setActive] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleActive = () => {
+    setActive((prevActive) => !prevActive);
+    console.log(active);
+  };
+
+  useEffect(() => {
+    if (active && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [active]);
+
   window.addEventListener("scroll", () => {
     const navbarContainer = document.getElementById("navbar");
     const scrollPosition = window.scrollY;
 
     if (navbarContainer) {
       if (scrollPosition > 0) {
-        navbarContainer.style.setProperty("background-color", "#0f172aee")
+        navbarContainer.style.setProperty("background-color", "#0f172aee");
         window.removeEventListener("scroll", () => {});
       } else {
         navbarContainer.style.setProperty("background", "transparent");
@@ -60,7 +75,24 @@ const Navbar = () => {
           </div>
         </div>
         <div className="mr-[3vw] flex items-center gap-[1.2vw]">
-          <button className="cursor-pointer">
+          {active && (
+            <div className="flex-center relative">
+              <Input
+                ref={inputRef}
+                placeholder="Title"
+                type="text"
+                className="z-[99999] text-[0.9vw]"
+              />
+              <div className="absolute cursor-pointer z-[999999] bg-slate-950 flex-center p-[0.5vw] pl-[1vw] mr-[0.5vw] right-0">
+                <Filter className="w-[0.75vw] h-auto" />
+              </div>
+              <div
+                onClick={handleActive}
+                className="z-[9999] w-[100vw] h-[100vh] fixed top-0 left-0 focus"
+              />
+            </div>
+          )}
+          <button onClick={handleActive} className="cursor-pointer">
             <Search className="w-[2vw]" />
           </button>
           <button className="cursor-pointer">
