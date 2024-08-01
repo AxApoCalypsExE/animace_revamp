@@ -158,11 +158,6 @@ const Navbar = () => {
                     >
                       Characters
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleFilterChange("genre")}
-                    >
-                      Genre
-                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
