@@ -6,6 +6,7 @@ import { cacheData, getCachedData } from "@/lib/localStorageUtils";
 import { fetchAniListData, fetchKitsuData } from "@/lib/FetchAnimeData";
 import {
   Carousel as Caro,
+  type CarouselApi,
   CarouselContent,
   CarouselItem,
   CarouselNext,
@@ -43,30 +44,25 @@ interface CarouselProps {
 
 const CarouselAnimes: React.FC<CarouselProps> = ({ genre, data }) => {
   const [carouselData, setCarouselData] = useState<Media[]>(data);
-  const [counter, setCounter] = useState(0);
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = React.useState(0)
 
-  if (counter === 30) {
-    setCounter(0)
-  }
 
-  if (counter === -1) {
-    setCounter(29)
-  }
+  useEffect(() => {
+    console.log(`Current: ${current}`)
+    if (!api) {
+      return
+    }
+ 
+    setCount(api.scrollSnapList().length)
+    setCurrent(api.selectedScrollSnap() + 1)
+ 
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1)
+    })
 
-  const handlePrev = () => {
-    setCounter((prevCounter) => {
-      console.log(prevCounter - 1);
-      return prevCounter - 1;
-    });
-  };
-
-  const handleNext = () => {
-    setCounter((prevCounter) => {
-      console.log(prevCounter + 1);
-      console.log(`Yo ${counter / 5}`);
-      return prevCounter + 1;
-    });
-  };
+  }, [api, current])
 
   return (
     <div className="my-[6vw] relative max-w-[100vw]">
@@ -74,9 +70,10 @@ const CarouselAnimes: React.FC<CarouselProps> = ({ genre, data }) => {
         <h2 className="text-[2vw] font-bold ml-[1.5vw] mb-[1.5vw]">
           {genre.charAt(0).toUpperCase() + genre.slice(1)}
         </h2>
-        <PaginationAnime counter={counter} dataLength={carouselData.length} />
+        <PaginationAnime counter={current} dataLength={carouselData.length} />
       </div>
       <Caro
+        setApi={setApi}
         opts={{
           align: "start",
           loop: true,
@@ -101,8 +98,8 @@ const CarouselAnimes: React.FC<CarouselProps> = ({ genre, data }) => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious onClick={handlePrev} className="left-[0.5vw]" />
-        <CarouselNext onClick={handleNext} className="right-[1.5vw]" />
+        <CarouselPrevious className="left-[0.5vw]" />
+        <CarouselNext className="right-[1.5vw]" />
       </Caro>
     </div>
   );
