@@ -9,17 +9,65 @@ import { Bell, Filter, Search, SquareUserRound } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { Input } from "./ui/input";
+import { useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Navbar = () => {
   const [active, setActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState("title");
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null); 
+
+  const handleHome = () => {
+    router.push("/")
+  }
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+
+    debounceTimeout.current = setTimeout(() => {
+      router.push(`/search?query=${value}&filter=${filter}`);
+    }, 300);
+  };
+
+  const handleSearchKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      router.push(`/search?query=${query}&filter=${filter}`);
+    }
+  };
 
   const handleActive = () => {
     setActive((prevActive) => !prevActive);
     console.log(active);
   };
+
+  const handleFilterChange = (newFilter: string) => {
+    setFilter(newFilter);
+    console.log("Filter changed to:", newFilter);
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        console.log("Input field focused");
+      }
+    }, 300);
+    
+  };
+
 
   useEffect(() => {
     if (active && inputRef.current) {
@@ -27,19 +75,23 @@ const Navbar = () => {
     }
   }, [active]);
 
-  window.addEventListener("scroll", () => {
-    const navbarContainer = document.getElementById("navbar");
-    const scrollPosition = window.scrollY;
+  useEffect(() => {
+    const handleScroll = () => {
+      const navbarContainer = document.getElementById("navbar");
+      const scrollPosition = window.scrollY;
 
-    if (navbarContainer) {
-      if (scrollPosition > 0) {
-        navbarContainer.style.setProperty("background-color", "#0f172aee");
-        window.removeEventListener("scroll", () => {});
-      } else {
-        navbarContainer.style.setProperty("background", "transparent");
+      if (navbarContainer) {
+        if (scrollPosition > 0) {
+          navbarContainer.style.setProperty("background-color", "#0f172aee");
+        } else {
+          navbarContainer.style.setProperty("background", "transparent");
+        }
       }
-    }
-  });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useGSAP(() => {
     gsap.to("#navbar", {
@@ -49,22 +101,26 @@ const Navbar = () => {
     });
   }, []);
 
+  const capitalizeFirstLetter = (string: string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   return (
     <>
-      <div className="fade-top" />
       <nav
         id="navbar"
         className={cn(
           "translate-y-[-100%] fixed top-0 left-0 z-[99999] w-full h-auto flex justify-between bg-transparent transition-color duration-300"
         )}
       >
-        <div className="ml-[3vw] flex items-center py-[1vw]">
+        <div className="ml-[3vw] flex items-center py-[1vw] cursor-pointer">
           <Image
             src="/AnimAceLogo2.svg"
             alt="logo"
             width={30}
             height={20}
             className="w-[8vw] h-auto mr-[3vw]"
+            onClick={handleHome}
           />
           <div className="flex gap-[1.2vw] text-[1vw]">
             <a href="/">Home</a>
@@ -79,12 +135,36 @@ const Navbar = () => {
             <div className="flex-center relative">
               <Input
                 ref={inputRef}
-                placeholder="Title"
+                value={query}
+                onChange={handleSearchChange}
+                onKeyDown={handleSearchKeyPress}
+                placeholder={`Search by ${capitalizeFirstLetter(filter)}`}
                 type="text"
                 className="z-[99999] text-[0.9vw]"
               />
               <div className="absolute cursor-pointer z-[999999] bg-slate-950 flex-center p-[0.5vw] pl-[1vw] mr-[0.5vw] right-0">
-                <Filter className="w-[0.75vw] h-auto" />
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <Filter className="w-[0.75vw] h-auto" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() => handleFilterChange("title")}
+                    >
+                      Title
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleFilterChange("characters")}
+                    >
+                      Characters
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleFilterChange("genre")}
+                    >
+                      Genre
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <div
                 onClick={handleActive}

@@ -5,6 +5,7 @@ import React from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ClearCacheButton from "./ClearCache";
+import AniListLogin from "@/app/(auth)/sign-up/_components/AniListLogin";
 
 const HeaderBox = () => {
   useGSAP(() => {
@@ -57,7 +58,7 @@ const HeaderBox = () => {
             Info
           </button>
         <ClearCacheButton />
-
+        <AniListLogin />
         </div>
       </div>
     </div>
