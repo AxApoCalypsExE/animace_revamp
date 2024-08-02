@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface AnimeModalCharacterContextType {
   modalCharacterData: any;
@@ -8,10 +8,14 @@ interface AnimeModalCharacterContextType {
   closeCharacterModal: () => void;
 }
 
-const AnimeModalCharacterContext = createContext<AnimeModalCharacterContextType | null>(null);
+const AnimeModalCharacterContext = createContext<AnimeModalCharacterContextType | undefined>(undefined);
 
 export const useAnimeModalCharacter = () => {
-  return useContext(AnimeModalCharacterContext);
+  const context = useContext(AnimeModalCharacterContext);
+  if (context === undefined) {
+    throw new Error("useAnimeModalCharacter must be used within an AnimeModalCharacterProvider");
+  }
+  return context;
 };
 
 export const AnimeModalCharacterProvider = ({ children }: { children: ReactNode }) => {
@@ -26,7 +30,9 @@ export const AnimeModalCharacterProvider = ({ children }: { children: ReactNode 
   };
 
   return (
-    <AnimeModalCharacterContext.Provider value={{ modalCharacterData, openCharacterModal, closeCharacterModal }}>
+    <AnimeModalCharacterContext.Provider
+      value={{ modalCharacterData, openCharacterModal, closeCharacterModal }}
+    >
       {children}
     </AnimeModalCharacterContext.Provider>
   );
