@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useRef } from "react";
 import Image from "next/image";
@@ -8,8 +8,8 @@ import { useAnimeModal } from "@/lib/AnimeModalContext";
 import { stripHtmlTags } from "@/lib/utils";
 
 const AnimeModal = () => {
-  const modalRef = useRef(null);
-  const modalRefBg = useRef(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const modalRefBg = useRef<HTMLDivElement>(null);
   const { modalData, closeModal } = useAnimeModal();
 
   useEffect(() => {
@@ -21,22 +21,26 @@ const AnimeModal = () => {
   }, [modalData]);
 
   const handleClose = () => {
-    if (modalRef.current !== null) {
+    if (modalRefBg.current) {
       gsap.to(modalRefBg.current, {
         duration: 0.5,
         opacity: 0,
         onComplete: () => {
-          modalRefBg.current.style.display = "none";
+          if (modalRefBg.current) {
+            modalRefBg.current.style.display = "none";
+          }
         },
       });
     }
 
-    gsap.to(modalRef.current, {
-      duration: 0.5,
-      opacity: 0,
-      scale: 0.5,
-      onComplete: closeModal,
-    });
+    if (modalRef.current) {
+      gsap.to(modalRef.current, {
+        duration: 0.5,
+        opacity: 0,
+        scale: 0.5,
+        onComplete: closeModal,
+      });
+    }
   };
 
   if (!modalData) return null;
@@ -92,7 +96,7 @@ const AnimeModal = () => {
             <div className="text-gray-400 flex justify-between">
               <span>{modalData.startDate.year}</span>
               <span>{modalData.episodes} Episodes</span>
-              <span>{modalData.duration}mins</span>
+              <span>{modalData.duration} mins</span>
               <span>{modalData.status}</span>
             </div>
             <div className="text-[1.25vw]">{stripHtmlTags(modalData.description)}</div>
