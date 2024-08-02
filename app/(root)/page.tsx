@@ -4,6 +4,7 @@ import { fetchAniListData, fetchKitsuData } from "@/lib/FetchAnimeData";
 import CarouselAnimes from "@/components/CarouselAnimes";
 import AnimeModal from "@/components/AnimeModal";
 import { AnimeModalProvider } from "@/lib/AnimeModalContext";
+import { useRouter } from "next/navigation";
 
 const genres = ["action", "romance", "horror", "sports"];
 

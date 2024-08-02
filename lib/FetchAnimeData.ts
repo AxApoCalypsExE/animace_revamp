@@ -12,6 +12,8 @@ export const fetchAniListData = async (query: string) => {
     const token = localStorage.getItem("anilist_token");
     const url = "https://graphql.anilist.co";
 
+    
+
     const options = {
       method: "POST",
       headers: {
