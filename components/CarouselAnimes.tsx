@@ -13,6 +13,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import PaginationAnime from "./PaginationAnime";
+import { useAnimeModal } from "@/lib/AnimeModalContext";
 
 interface Media {
   id: number;
@@ -35,6 +36,8 @@ interface Media {
     extraLarge: string;
   };
   kitsuCoverImage?: string;
+  tags: { name: string }[];
+  characters: { edges: { node: { name: { full: string } } }[] };
 }
 
 interface CarouselProps {
@@ -46,23 +49,21 @@ const CarouselAnimes: React.FC<CarouselProps> = ({ genre, data }) => {
   const [carouselData, setCarouselData] = useState<Media[]>(data);
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
-  const [count, setCount] = React.useState(0)
-
+  const [count, setCount] = React.useState(0);
+  const { openModal } = useAnimeModal();
 
   useEffect(() => {
-    console.log(`Current: ${current}`)
     if (!api) {
-      return
+      return;
     }
- 
-    setCount(api.scrollSnapList().length)
-    setCurrent(api.selectedScrollSnap() + 1)
- 
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1)
-    })
 
-  }, [api, current])
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap() + 1);
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    });
+  }, [api, current]);
 
   return (
     <div className="my-[6vw] relative max-w-[100vw]">
@@ -83,16 +84,19 @@ const CarouselAnimes: React.FC<CarouselProps> = ({ genre, data }) => {
         <CarouselContent>
           {carouselData.map((anime, index) => (
             <CarouselItem key={index} className="hover:z-[99999] basis-1/7">
-              <div className="group flex-center w-[17vw] h-[23vw] relative transition-transform duration-200 hover:scale-[1.15]">
+              <div
+                className="group flex items-end justify-center w-[17vw] h-[23vw] relative transition-transform duration-200 hover:scale-[1.15] cursor-pointer"
+                onClick={() => openModal(anime)}
+              >
                 <Image
-                  src={anime.kitsuCoverImage || anime.coverImage.extraLarge}
+                  src={anime.coverImage.extraLarge || anime.kitsuCoverImage}
                   alt={`${anime.title.english || anime.title.romaji} cover`}
                   layout="fill"
                   objectFit="cover"
                   className="rounded"
                 />
-                <h1 className="text-center opacity-0 transition-opacity duration-200 group-hover:opacity-100 absolute z-[99999]">
-                  {anime.title.english}
+                <h1 className="text-center opacity-0 transition-opacity duration-200 group-hover:opacity-100 bg-slate-900/90 absolute z-[99999] w-full">
+                  {anime.title.english || anime.title.romaji}
                 </h1>
               </div>
             </CarouselItem>
@@ -106,28 +110,3 @@ const CarouselAnimes: React.FC<CarouselProps> = ({ genre, data }) => {
 };
 
 export default CarouselAnimes;
-
-{
-  /* <div className="my-[6vw] relative">
-      <h2 className="text-[2vw] font-bold ml-[1.5vw] mb-[1.5vw]">
-        {genre.charAt(0).toUpperCase() + genre.slice(1)}
-      </h2>
-      <Caro className="relative">
-        <CarouselContent className="flex space-x-[1vw]">
-          {carouselData.map((anime) => (
-            <CarouselItem key={anime.id} className="basis:1/4 flex-none w-[22vw] h-[31vw] relative">
-              <Image
-                src={anime.kitsuCoverImage || anime.coverImage.extraLarge}
-                alt={`${anime.title.english || anime.title.romaji} cover`}
-                layout="fill"
-                objectFit="cover"
-                className="rounded-lg"
-              />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className="absolute left-0" />
-        <CarouselNext className="absolute left-10" />
-      </Caro>
-    </div> */
-}

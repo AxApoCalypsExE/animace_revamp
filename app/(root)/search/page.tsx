@@ -2,10 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { fetchAniListData } from "@/lib/FetchAnimeData";
+import { fetchAniListData, fetchKitsuData } from "@/lib/FetchAnimeData";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAnimeModal } from "@/lib/AnimeModalContext";
+import { useAnimeModalCharacter } from "@/lib/AnimeModalCharacterContext";
 import AnimeModal from "@/components/AnimeModal";
+import AnimeModalCharacter from "@/components/AnimeModalCharacter";
 
 interface Anime {
   id: number;
@@ -27,6 +30,9 @@ interface Anime {
   coverImage: {
     extraLarge: string;
   };
+  kitsuCoverImage?: string;
+  tags: { name: string }[];
+  characters: { edges: { node: { name: { full: string } } }[] };
 }
 
 interface Character {
@@ -55,6 +61,8 @@ const SearchPage = () => {
   const filter = searchParams.get("filter");
   const [searchResults, setSearchResults] = useState<(Character | Anime)[]>([]);
   const [loading, setLoading] = useState(true);
+  const { openModal } = useAnimeModal();
+  const { openCharacterModal } = useAnimeModalCharacter();
 
   useEffect(() => {
     console.log("Query:", query);
@@ -111,6 +119,18 @@ const SearchPage = () => {
               coverImage {
                 extraLarge
               }
+              tags {
+                name
+              }
+              characters(role: MAIN) {
+                edges {
+                  node {
+                    name {
+                      full
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -120,16 +140,39 @@ const SearchPage = () => {
     console.log("Search Query:", searchQuery);
     if (searchQuery) {
       fetchAniListData(searchQuery)
-        .then((data) => {
+        .then(async (data) => {
           console.log("Fetched Data:", data);
+          let results = [];
           if (filter === "characters" && data.data.Page.characters) {
-            setSearchResults(data.data.Page.characters);
+            results = data.data.Page.characters;
           } else if (filter === "title" && data.data.Page.media) {
-            setSearchResults(data.data.Page.media);
+            results = data.data.Page.media;
           } else {
             console.log("No results found");
             setSearchResults([]);
+            setLoading(false);
+            return;
           }
+
+          const updatedResults = await Promise.all(
+            results.map(async (item: Character | Anime) => {
+              if (isAnime(item)) {
+                const title = item.title.english || item.title.romaji;
+                try {
+                  const kitsuResult = await fetchKitsuData(item.title.romaji);
+                  const kitsuCoverImage =
+                    kitsuResult.data[0]?.attributes?.coverImage?.original || "";
+                  return { ...item, kitsuCoverImage };
+                } catch (error) {
+                  console.error(`Error fetching Kitsu data for ${title}:`, error);
+                  return { ...item, kitsuCoverImage: "" };
+                }
+              }
+              return item;
+            })
+          );
+
+          setSearchResults(updatedResults);
           setLoading(false);
         })
         .catch((error) => {
@@ -164,8 +207,9 @@ const SearchPage = () => {
             : searchResults.map((result) =>
                 isAnime(result) ? (
                   <Card
-                    className="w-[10vw] max-md:w-[20vw] group relative overflow-hidden text-center rounded"
+                    className="w-[10vw] max-md:w-[20vw] group relative overflow-hidden text-center rounded cursor-pointer"
                     key={result.id}
+                    onClick={() => openModal(result)}
                   >
                     <CardHeader className="z-20 hidden group-hover:block absolute top-0 left-0 bg-black/35 h-full w-full">
                       <CardTitle className="text-wrap text-[1.2vw]">
@@ -174,7 +218,7 @@ const SearchPage = () => {
                     </CardHeader>
                     <div className="z-10 w-full h-0 pb-[150%]">
                       <Image
-                        src={result.coverImage.extraLarge}
+                        src={result.coverImage.extraLarge || result.kitsuCoverImage}
                         alt={result.title.english || result.title.romaji}
                         layout="fill"
                         objectFit="cover"
@@ -186,6 +230,7 @@ const SearchPage = () => {
                   <Card
                     className="w-[10vw] max-md:w-[20vw] group relative overflow-hidden text-center rounded"
                     key={result.id}
+                    onClick={() => openCharacterModal(result)}
                   >
                     <CardHeader className="z-20 hidden group-hover:block absolute top-0 left-0 bg-black/35 h-full w-full">
                       <CardTitle className="text-wrap text-[1.2vw]">
@@ -217,6 +262,8 @@ const SearchPage = () => {
               )}
         </div>
       </div>
+      <AnimeModal />
+      <AnimeModalCharacter />
     </>
   );
 };

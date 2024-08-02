@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,11 +26,11 @@ const Navbar = () => {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("title");
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null); 
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const handleHome = () => {
-    router.push("/")
-  }
+    router.push("/");
+  };
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -65,9 +66,7 @@ const Navbar = () => {
         console.log("Input field focused");
       }
     }, 300);
-    
   };
-
 
   useEffect(() => {
     if (active && inputRef.current) {
@@ -123,11 +122,18 @@ const Navbar = () => {
             onClick={handleHome}
           />
           <div className="flex gap-[1.2vw] text-[1vw]">
-            <a href="/">Home</a>
-            <a href="/">Series</a>
-            <a href="/">Movies</a>
-            <a href="/">Recently Added</a>
-            <a href="/">My List</a>
+            <Link href="/" passHref>
+              Home
+            </Link>
+            <Link href="/movies" passHref>
+              Movies
+            </Link>
+            <Link href="/recently-added" passHref>
+              Recently Added
+            </Link>
+            <Link href="/my-list" passHref>
+              My List
+            </Link>
           </div>
         </div>
         <div className="mr-[3vw] flex items-center gap-[1.2vw]">

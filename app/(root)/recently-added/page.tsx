@@ -14,7 +14,7 @@ async function fetchCarouselsData() {
     const query = `
       query {
         Page(perPage: 30) {
-          media(genre: "${genre}", sort: POPULARITY_DESC, format_in: TV) {
+          media(genre: "${genre}", sort: START_DATE_DESC, status_not: NOT_YET_RELEASED) {
             id
             title {
               romaji

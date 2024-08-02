@@ -2,12 +2,12 @@ import { cacheData, getCachedData } from "./localStorageUtils";
 
 export const fetchAniListData = async (query: string) => {
   if (typeof window !== "undefined") {
-    const cacheKey = `anilist_${query}`;
-    const cachedData = getCachedData(cacheKey);
+    // const cacheKey = `anilist_${query}`;
+    // const cachedData = getCachedData(cacheKey);
 
-    if (cachedData) {
-      return cachedData;
-    }
+    // if (cachedData) {
+    //   return cachedData;
+    // }
 
     const token = localStorage.getItem("anilist_token");
     const url = "https://graphql.anilist.co";
@@ -28,7 +28,7 @@ export const fetchAniListData = async (query: string) => {
       const response = await fetch(url, options);
       const data = await response.json();
 
-      cacheData(cacheKey, data);
+      // cacheData(cacheKey, data);
 
       return data;
     } catch (error) {
@@ -63,12 +63,12 @@ export const fetchAniListData = async (query: string) => {
 
 
 export const fetchKitsuData = async (title: string) => {
-  const cacheKey = `kitsu_${title}`;
-  const cachedData = getCachedData(cacheKey);
+  // const cacheKey = `kitsu_${title}`;
+  // const cachedData = getCachedData(cacheKey);
 
-  if (cachedData) {
-    return cachedData;
-  }
+  // if (cachedData) {
+  //   return cachedData;
+  // }
 
 
   const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(title)}`;
@@ -85,7 +85,7 @@ export const fetchKitsuData = async (title: string) => {
     const response = await fetch(url, options);
     const data = await response.json();
 
-    cacheData(cacheKey, data);
+    // cacheData(cacheKey, data);
 
     return data;
   } catch (error) {

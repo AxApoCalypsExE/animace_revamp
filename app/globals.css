@@ -89,6 +89,13 @@ body {
   font-family: "Raleway", sans-serif;
 }
 
+.truncateGenre {
+  overflow-x: clip;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
 
 @layer base {
   * {
