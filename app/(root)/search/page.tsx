@@ -190,6 +190,8 @@ const SearchPage = () => {
     return (result as Anime).title !== undefined;
   };
 
+  const fallbackImage = "/path/to/fallback-image.jpg"; // Replace with actual fallback image path
+
   return (
     <>
       <div className="mt-[7vw] mx-[3vw]">
@@ -218,7 +220,7 @@ const SearchPage = () => {
                     </CardHeader>
                     <div className="z-10 w-full h-0 pb-[150%]">
                       <Image
-                        src={result.coverImage.extraLarge || result.kitsuCoverImage}
+                        src={result.coverImage.extraLarge || result.kitsuCoverImage || fallbackImage}
                         alt={result.title.english || result.title.romaji}
                         layout="fill"
                         objectFit="cover"
@@ -250,7 +252,7 @@ const SearchPage = () => {
                     </CardHeader>
                     <div className="z-10 w-full h-0 pb-[150%]">
                       <Image
-                        src={result.image.large}
+                        src={result.image.large || fallbackImage}
                         alt={result.name.full}
                         layout="fill"
                         objectFit="cover"
