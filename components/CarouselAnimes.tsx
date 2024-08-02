@@ -65,6 +65,8 @@ const CarouselAnimes: React.FC<CarouselProps> = ({ genre, data }) => {
     });
   }, [api, current]);
 
+  const fallbackImage = "/path/to/fallback-image.jpg";
+
   return (
     <div className="my-[6vw] relative max-w-[100vw]">
       <div className="flex justify-between max-w-[97vw] items-center">
@@ -89,7 +91,7 @@ const CarouselAnimes: React.FC<CarouselProps> = ({ genre, data }) => {
                 onClick={() => openModal(anime)}
               >
                 <Image
-                  src={anime.coverImage.extraLarge || anime.kitsuCoverImage}
+                  src={anime.coverImage.extraLarge || anime.kitsuCoverImage || fallbackImage}
                   alt={`${anime.title.english || anime.title.romaji} cover`}
                   layout="fill"
                   objectFit="cover"
