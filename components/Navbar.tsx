@@ -1,6 +1,5 @@
 "use client";
 
-import useScrollTop from "@/lib/use-scroll-top";
 import { cn } from "@/lib/utils";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -32,7 +31,7 @@ const Navbar = () => {
     router.push("/");
   };
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
 
@@ -45,7 +44,7 @@ const Navbar = () => {
     }, 300);
   };
 
-  const handleSearchKeyPress = (e) => {
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       router.push(`/search?query=${query}&filter=${filter}`);
