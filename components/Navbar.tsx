@@ -121,16 +121,16 @@ const Navbar = () => {
             onClick={handleHome}
           />
           <div className="flex gap-[1.2vw] text-[1vw]">
-            <Link href="/" passHref>
+            <Link href="/">
               Home
             </Link>
-            <Link href="/movies" passHref>
+            <Link href="/movies">
               Movies
             </Link>
-            <Link href="/recently-added" passHref>
+            <Link href="/recently-added">
               Recently Added
             </Link>
-            <Link href="/my-list" passHref>
+            <Link href="/" className="cursor-not-allowed">
               My List
             </Link>
           </div>
