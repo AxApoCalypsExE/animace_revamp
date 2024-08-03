@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { fetchAniListData, fetchKitsuData } from "@/lib/FetchAnimeData";
 import Image from "next/image";
@@ -54,7 +54,9 @@ interface Character {
   };
 }
 
-const SearchPage = () => {
+const fallbackImage = "/path/to/fallback-image.jpg"; // Replace with actual fallback image path
+
+const SearchPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get("query");
@@ -190,83 +192,87 @@ const SearchPage = () => {
     return (result as Anime).title !== undefined;
   };
 
-  const fallbackImage = "/path/to/fallback-image.jpg"; // Replace with actual fallback image path
-
   return (
-    <>
-      <div className="mt-[7vw] mx-[3vw]">
-        <h1 className="my-[1vw]">
-          Search Results for &ldquo;{query}&rdquo; in {filter}
-        </h1>
-        <div className="flex flex-wrap gap-x-[3vw] gap-y-[3vw]">
-          {loading
-            ? Array.from({ length: 40 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="w-[10vw] max-md:w-[20vw] bg-slate-800 rounded animate-pulse"
-                />
-              ))
-            : searchResults.map((result) =>
-                isAnime(result) ? (
-                  <Card
-                    className="w-[10vw] max-md:w-[20vw] group relative overflow-hidden text-center rounded cursor-pointer"
-                    key={result.id}
-                    onClick={() => openModal(result)}
-                  >
-                    <CardHeader className="z-20 hidden group-hover:block absolute top-0 left-0 bg-black/35 h-full w-full">
-                      <CardTitle className="text-wrap text-[1.2vw]">
-                        {result.title.english || result.title.romaji}
-                      </CardTitle>
-                    </CardHeader>
-                    <div className="z-10 w-full h-0 pb-[150%]">
-                      <Image
-                        src={result.coverImage.extraLarge || result.kitsuCoverImage || fallbackImage}
-                        alt={result.title.english || result.title.romaji}
-                        layout="fill"
-                        objectFit="cover"
-                        className="rounded"
-                      />
-                    </div>
-                  </Card>
-                ) : (
-                  <Card
-                    className="w-[10vw] max-md:w-[20vw] group relative overflow-hidden text-center rounded"
-                    key={result.id}
-                    onClick={() => openCharacterModal(result)}
-                  >
-                    <CardHeader className="z-20 hidden group-hover:block absolute top-0 left-0 bg-black/35 h-full w-full">
-                      <CardTitle className="text-wrap text-[1.2vw]">
-                        {result.name.full}
-                      </CardTitle>
-                      {result.name.native && (
-                        <h1 className="text-[1vw] line-clamp-1">
-                          ({result.name.native})
-                        </h1>
-                      )}
-                      <p className="text-[0.8vw] font-bold">
-                        -{" "}
-                        {result.media.nodes.length > 0 &&
-                          (result.media.nodes[0].title.english ||
-                            result.media.nodes[0].title.romaji)}
-                      </p>
-                    </CardHeader>
-                    <div className="z-10 w-full h-0 pb-[150%]">
-                      <Image
-                        src={result.image.large || fallbackImage}
-                        alt={result.name.full}
-                        layout="fill"
-                        objectFit="cover"
-                        className="rounded"
-                      />
-                    </div>
-                  </Card>
-                )
-              )}
-        </div>
+    <div className="mt-[7vw] mx-[3vw]">
+      <h1 className="my-[1vw]">
+        Search Results for &ldquo;{query}&rdquo; in {filter}
+      </h1>
+      <div className="flex flex-wrap gap-x-[3vw] gap-y-[3vw]">
+        {loading
+          ? Array.from({ length: 40 }).map((_, index) => (
+              <div
+                key={index}
+                className="w-[10vw] max-md:w-[20vw] bg-slate-800 rounded animate-pulse"
+              />
+            ))
+          : searchResults.map((result) =>
+              isAnime(result) ? (
+                <Card
+                  className="w-[10vw] max-md:w-[20vw] group relative overflow-hidden text-center rounded cursor-pointer"
+                  key={result.id}
+                  onClick={() => openModal(result)}
+                >
+                  <CardHeader className="z-20 hidden group-hover:block absolute top-0 left-0 bg-black/35 h-full w-full">
+                    <CardTitle className="text-wrap text-[1.2vw]">
+                      {result.title.english || result.title.romaji}
+                    </CardTitle>
+                  </CardHeader>
+                  <div className="z-10 w-full h-0 pb-[150%]">
+                    <Image
+                      src={result.coverImage.extraLarge || result.kitsuCoverImage || fallbackImage}
+                      alt={result.title.english || result.title.romaji}
+                      layout="fill"
+                      objectFit="cover"
+                      className="rounded"
+                    />
+                  </div>
+                </Card>
+              ) : (
+                <Card
+                  className="w-[10vw] max-md:w-[20vw] group relative overflow-hidden text-center rounded"
+                  key={result.id}
+                  onClick={() => openCharacterModal(result)}
+                >
+                  <CardHeader className="z-20 hidden group-hover:block absolute top-0 left-0 bg-black/35 h-full w-full">
+                    <CardTitle className="text-wrap text-[1.2vw]">
+                      {result.name.full}
+                    </CardTitle>
+                    {result.name.native && (
+                      <h1 className="text-[1vw] line-clamp-1">
+                        ({result.name.native})
+                      </h1>
+                    )}
+                    <p className="text-[0.8vw] font-bold">
+                      -{" "}
+                      {result.media.nodes.length > 0 &&
+                        (result.media.nodes[0].title.english ||
+                          result.media.nodes[0].title.romaji)}
+                    </p>
+                  </CardHeader>
+                  <div className="z-10 w-full h-0 pb-[150%]">
+                    <Image
+                      src={result.image.large || fallbackImage}
+                      alt={result.name.full}
+                      layout="fill"
+                      objectFit="cover"
+                      className="rounded"
+                    />
+                  </div>
+                </Card>
+              )
+            )}
       </div>
+    </div>
+  );
+};
+
+const SearchPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchPageContent />
       <AnimeModal />
       <AnimeModalCharacter />
-    </>
+    </Suspense>
   );
 };
 
