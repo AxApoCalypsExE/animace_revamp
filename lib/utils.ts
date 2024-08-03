@@ -14,8 +14,12 @@ export function stripHtmlTags(str: string | null | undefined): string {
   return str.replace(/<\/?[^>]+(>|$)/g, "");
 }
 
-export const truncateWords = (str: string, maxWords: number): string => {
-  const words = str.split(" ");
+export const truncateWords = (str: string | null | undefined, maxWords: number): string => {
+  if (!str) {
+    return "No description...";
+  }
+
+  const words = stripHtmlTags(str).split(" ");
   if (words.length <= maxWords) {
     return stripHtmlTags(str);
   }

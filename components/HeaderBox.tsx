@@ -66,6 +66,8 @@ const HeaderBox = ({ data }: HeaderBoxProps) => {
     });
   }, []);
 
+  const description = data.description ? truncateWords(data.description, 30) : "";
+
   return (
     <div id="headerbox" className="translate-x-[-100px] opacity-0">
       <div id="description" className="absolute bottom-[23%] left-[4%] flex flex-col gap-[0.4vw] py-[1.6vw] px-[2vw] from-slate-500/60 to-slate-800/85 max-w-[36%] rounded-[2.25vw] bg-gradient-to-b">
@@ -73,7 +75,7 @@ const HeaderBox = ({ data }: HeaderBoxProps) => {
           {data.title.english || data.title.romaji}
         </h1>
         <p id="description" className="pointer-events-none opacity-0 text-[1.1vw]">
-        {truncateWords(data.description, 30)}
+        {description}
         </p>
         <h3 id="description" className="pointer-events-none opacity-0 text-[1.3vw] mt-[1vw] font-semibold truncateGenre">
           Genre:{" "}
