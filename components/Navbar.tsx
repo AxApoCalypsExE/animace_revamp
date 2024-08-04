@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/all";
-import { Bell, Filter, Search, SquareUserRound } from "lucide-react";
+import { Bell, Filter, LogOut, Search, SquareUserRound } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { Input } from "./ui/input";
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import Link from "next/link";
+import { account } from "@/app/appwrite";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -103,6 +104,34 @@ const Navbar = () => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
+  const handleLogout = async () => {
+    try {
+      await account.deleteSession("current");
+      localStorage.clear();
+      try {
+        const response = await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          alert(
+            "Cache and session cleared! Reload the page to see the changes."
+          );
+          router.push("/sign-up");
+        } else {
+          console.error("Failed to clear session");
+        }
+      } catch (error) {
+        console.error("Error clearing session:", error);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <nav
@@ -121,16 +150,13 @@ const Navbar = () => {
             onClick={handleHome}
           />
           <div className="flex gap-[1.2vw] text-[1vw]">
-            <Link href="/">
-              Home
-            </Link>
-            <Link href="/movies">
-              Movies
-            </Link>
-            <Link href="/recently-added">
-              Recently Added
-            </Link>
-            <Link href="/" className="cursor-not-allowed">
+            <Link href="/">Home</Link>
+            <Link href="/movies">Movies</Link>
+            <Link href="/recently-added">Recently Added</Link>
+            <Link
+              href="/my-list"
+              // className="cursor-not-allowed"
+            >
               My List
             </Link>
           </div>
@@ -178,9 +204,20 @@ const Navbar = () => {
           <button className="cursor-pointer">
             <Bell className="w-[2vw]" />
           </button>
-          <button className="">
-            <SquareUserRound className="w-[2vw]" />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <SquareUserRound className="w-[2vw] cursor-pointer" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>
+                <Link href="/profile">Profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </nav>
     </>

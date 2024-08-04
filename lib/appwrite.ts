@@ -22,9 +22,9 @@ export async function createSessionClient() {
 }
 
 export async function createAdminClient() {
-  const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
-  const project = process.env.NEXT_PUBLIC_APPWRITE_PROJECT;
-  const key = process.env.NEXT_APPWRITE_KEY;
+  const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!;
+  const project = process.env.NEXT_PUBLIC_APPWRITE_PROJECT!;
+  const key = process.env.NEXT_PUBLIC_APPWRITE_KEY!;
 
   if (!endpoint || !project || !key) {
     throw new Error("Missing necessary environment variables");
@@ -36,14 +36,8 @@ export async function createAdminClient() {
     .setKey(key);
 
   return {
-    get account() {
-      return new Account(client);
-    },
-    get database() {
-      return new Databases(client)
-    },
-    get user() {
-      return new Users(client)
-    }
+    account: new Account(client),
+    databases: new Databases(client),
+    users: new Users(client),
   };
 }

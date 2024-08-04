@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import type { AppProps } from "next/app";
+import { UserProvider } from "@/lib/UserContext";
 
 function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -22,7 +23,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   }, []);
 
-  return <Component {...pageProps} />;
+  return (
+      <Component {...pageProps} />
+  );
 }
+
 
 export default MyApp;

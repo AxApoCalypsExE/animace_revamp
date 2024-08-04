@@ -8,12 +8,10 @@ import { z } from "zod";
 import Link from "next/link";
 import { AppwriteException, Models } from "appwrite";
 import { Eye, EyeOff, Mail } from "lucide-react";
-import { signIn } from "@/lib/user.actions";
 import { useRouter } from "next/navigation";
 
 type SchemaType = z.infer<typeof authSchema>;
 type UserType = Models.User<Models.Preferences> | null;
-
 
 const authSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -48,12 +46,14 @@ export default function SignIn() {
     resolver: zodResolver(authSchema),
   });
 
-  async function handleLogout() {
+  async function signIn(data: { email: string; password: string }) {
     try {
-      await account.deleteSession("current");
-      setUser(null);
+      const response = await account.createSession(data.email, data.password);
+      console.log("Sign-in response:", response);
+      return response;
     } catch (error) {
-      console.log(error);
+      console.error("Sign-in error:", error);
+      throw error;
     }
   }
 
@@ -63,9 +63,12 @@ export default function SignIn() {
       const response = await signIn(data);
 
       if (response) {
-        router.push("/")
+        const loggedInUser = await account.get();
+        setUser(loggedInUser);
+        localStorage.setItem("user", JSON.stringify(loggedInUser));
+        localStorage.setItem("userId", loggedInUser.$id);
+        router.push("/");
       }
-      setUser(user);
     } catch (error) {
       if (error instanceof AppwriteException) {
         if (error.code === 401) {
@@ -80,14 +83,7 @@ export default function SignIn() {
     }
   };
 
-  if (user) {
-    return (
-      <div className="min-h-screen min-w-full flex-center">
-        <h1>You&apos;ve logged in!</h1>
-        <button onClick={handleLogout}>Logout</button>
-      </div>
-    );
-  }
+  if (user) router.push("/");
 
   return (
     <section className="flex min-h-screen flex-col items-center justify-center p-24 gap-5">

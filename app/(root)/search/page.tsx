@@ -229,7 +229,7 @@ const SearchPageContent = () => {
                 </Card>
               ) : (
                 <Card
-                  className="w-[10vw] max-md:w-[20vw] group relative overflow-hidden text-center rounded"
+                  className="w-[10vw] max-md:w-[20vw] group relative overflow-hidden text-center rounded cursor-pointer"
                   key={result.id}
                   onClick={() => openCharacterModal(result)}
                 >

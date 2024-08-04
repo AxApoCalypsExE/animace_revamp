@@ -1,26 +1,36 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getLoggedInUser } from "@/app/appwrite";
 
-const AuthRedirect = () => {
+const AniListCallback = () => {
   const router = useRouter();
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    const token = new URLSearchParams(hash.replace("#", "?")).get(
-      "access_token"
-    );
+    const fetchUser = async () => {
+      try {
+        const loggedInUser = await getLoggedInUser();
+        setUser(loggedInUser);
+      } catch (error) {
+        console.error("Error fetching logged in user:", error);
+      }
+    };
 
-    if (token) {
-      localStorage.setItem("anilist_token", token);
-      router.push("/");
-    } else {
-      console.error("No token found in URL");
-    }
-  }, [router]);
+    fetchUser();
+  }, []);
+
+  const hash = window.location.hash;
+  const params = new URLSearchParams(hash.replace("#", "?"));
+  const anilistToken = params.get("access_token");
+
+  if (anilistToken && user) {
+    localStorage.setItem("anilist_token", anilistToken);
+    router.push("/");
+  }
 
   return <div>Loading...</div>;
 };
 
-export default AuthRedirect;
+export default AniListCallback;

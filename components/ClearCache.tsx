@@ -1,15 +1,27 @@
 "use client";
 
-import React from 'react';
+import React from "react";
+import { useRouter } from "next/navigation";
+import { account } from "@/app/appwrite";
 
 const ClearCacheButton = () => {
-  const clearCache = () => {
+  const router = useRouter();
+
+  const clearCache = async () => {
     localStorage.clear();
-    alert("Cache cleared! Reload the page to see the changes.");
+
+    try {
+      await account.deleteSession("current");
+      console.log("Session deleted successfully");
+
+      router.push("/sign-up");
+    } catch (error) {
+      console.error("Error deleting session:", error);
+    }
   };
 
   return (
-    <button onClick={clearCache} className='z-[999999]'>
+    <button onClick={clearCache} className="z-[999999]">
       Clear Cache
     </button>
   );

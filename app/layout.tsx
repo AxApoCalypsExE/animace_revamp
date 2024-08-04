@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Raleway  } from "next/font/google";
+import { Raleway } from "next/font/google";
 import "./globals.css";
 
 const raleway = Raleway({ subsets: ["latin"], variable: "--font-raleway" });
@@ -18,11 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${raleway.variable}`}>
-        {children}
-      </body>
-    </html>
+      <html lang="en">
+        <body className={`${raleway.variable}`}>{children}</body>
+      </html>
   );
 }
-

@@ -90,21 +90,19 @@ export default async function Home() {
   const randomAnime = getRandomAnime(allAnimes);
 
   return (
-    <AnimeModalProvider>
-      <section className="max-xl:max-h-screen">
-        <div className="w-[100vw]">
-        <Hero
-            data={randomAnime}
-          />
-          <div className="absolute -translate-y-[17vw] w-[100vw]">
-            <CarouselAnimes genre="action" data={carouselsData["action"]} />
-            <CarouselAnimes genre="romance" data={carouselsData["romance"]} />
-            <CarouselAnimes genre="horror" data={carouselsData["horror"]} />
-            <CarouselAnimes genre="sports" data={carouselsData["sports"]} />
+      <AnimeModalProvider>
+        <section className="max-xl:max-h-screen">
+          <div className="w-[100vw]">
+            <Hero data={randomAnime} />
+            <div className="absolute -translate-y-[17vw] w-[100vw]">
+              <CarouselAnimes genre="action" data={carouselsData["action"]} />
+              <CarouselAnimes genre="romance" data={carouselsData["romance"]} />
+              <CarouselAnimes genre="horror" data={carouselsData["horror"]} />
+              <CarouselAnimes genre="sports" data={carouselsData["sports"]} />
+            </div>
           </div>
-        </div>
-      </section>
-      <AnimeModal />
-    </AnimeModalProvider>
+        </section>
+        <AnimeModal />
+      </AnimeModalProvider>
   );
 }

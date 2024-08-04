@@ -5,7 +5,6 @@ import React from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ClearCacheButton from "./ClearCache";
-import AniListLogin from "@/app/(auth)/sign-up/_components/AniListLogin";
 import { truncateWords } from "@/lib/utils";
 import { useAnimeModal } from "@/lib/AnimeModalContext";
 
@@ -97,7 +96,6 @@ const HeaderBox = ({ data }: HeaderBoxProps) => {
             Info
           </button>
           <ClearCacheButton />
-          <AniListLogin />
         </div>
       </div>
     </div>

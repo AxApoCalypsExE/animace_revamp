@@ -1,27 +1,24 @@
-"use client";
-
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
 import Navbar from "@/components/Navbar";
+import { getLoggedInUser } from "../appwrite";
+import { redirect } from "next/navigation";
+import { UserProvider } from "@/lib/UserContext";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const router = useRouter();
+}) {
+  const user = await getLoggedInUser();
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("anilist_token");
-  //   if (!token) {
-  //     router.push("/sign-up");
-  //   }
-  // }, [router]);
+  if (!user) redirect("/sign-up");
+
+  redirect("/account");
 
   return (
-    <main>
-      <Navbar />
-      <div>{children}</div>
-    </main>
+      <main>
+        <Navbar />
+        <div>{children}</div>
+      </main>
   );
 }

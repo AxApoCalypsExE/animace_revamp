@@ -4,11 +4,9 @@ import React from "react";
 
 const SearchLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <AnimeModalProvider>
-      <AnimeModalCharacterProvider>
-        {children}
-      </AnimeModalCharacterProvider>
-    </AnimeModalProvider>
+      <AnimeModalProvider>
+        <AnimeModalCharacterProvider>{children}</AnimeModalCharacterProvider>
+      </AnimeModalProvider>
   );
 };
 

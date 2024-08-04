@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import { account } from "@/app/appwrite";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface Media {
   id: number;
@@ -33,14 +34,33 @@ interface AnimeModalContextType {
   closeModal: () => void;
 }
 
-const AnimeModalContext = createContext<AnimeModalContextType | undefined>(undefined);
+const AnimeModalContext = createContext<AnimeModalContextType | undefined>(
+  undefined
+);
 
-export const AnimeModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AnimeModalProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [modalData, setModalData] = useState<Media | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const loggedInUser = await account.get();
+        setUserId(loggedInUser.$id);
+      } catch (error) {
+        console.error("Error fetching logged-in user:", error);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  
   const openModal = (data: Media) => setModalData(data);
   const closeModal = () => setModalData(null);
 
+  
   return (
     <AnimeModalContext.Provider value={{ modalData, openModal, closeModal }}>
       {children}
@@ -55,3 +75,20 @@ export const useAnimeModal = () => {
   }
   return context;
 };
+
+// {
+//   "userId": "userId123",
+//   "animeId": "animeId123",
+  // "title": "Anime Title",
+  // "coverImage": "https://link-to-cover-image.com",
+  // "description": "This is an anime description.",
+  // "genres": ["Action", "Adventure"],
+  // "tags": ["Tag1", "Tag2"],
+  // "characters": ["Character1", "Character2"],
+  // "startDate": "2024-01-01",
+  // "episodes": 24,
+  // "duration": 24,
+  // "status": "Finished"
+  // format
+  // kitsuCoverImage
+// }

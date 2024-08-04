@@ -2,17 +2,8 @@ import { cacheData, getCachedData } from "./localStorageUtils";
 
 export const fetchAniListData = async (query: string) => {
   if (typeof window !== "undefined") {
-    // const cacheKey = `anilist_${query}`;
-    // const cachedData = getCachedData(cacheKey);
-
-    // if (cachedData) {
-    //   return cachedData;
-    // }
-
     const token = localStorage.getItem("anilist_token");
     const url = "https://graphql.anilist.co";
-
-    
 
     const options = {
       method: "POST",
@@ -29,8 +20,6 @@ export const fetchAniListData = async (query: string) => {
     try {
       const response = await fetch(url, options);
       const data = await response.json();
-
-      // cacheData(cacheKey, data);
 
       return data;
     } catch (error) {
