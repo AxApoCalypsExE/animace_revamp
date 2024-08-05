@@ -1,146 +1,132 @@
 "use client";
 
-import { account } from "@/app/appwrite";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Link from "next/link";
-import { AppwriteException, Models } from "appwrite";
-import { Eye, EyeOff, Mail } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { account } from "@/app/appwrite";
 import { useRouter } from "next/navigation";
-
-type SchemaType = z.infer<typeof authSchema>;
-type UserType = Models.User<Models.Preferences> | null;
+import ClearCacheButton from "@/components/ClearCache";
 
 const authSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters long" })
-    .regex(/[a-z]/, {
-      message: "Password must contain at least one lowercase letter",
-    })
-    .regex(/[A-Z]/, {
-      message: "Password must contain at least one uppercase letter",
-    })
-    .regex(/[0-9]/, { message: "Password must contain at least one number" })
-    .regex(/[@$!%*?&#]/, {
-      message: "Password must contain at least one special character",
-    }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
 });
 
 export default function SignIn() {
   const router = useRouter();
-
-  const [user, setUser] = useState<null | UserType>(null);
-  const [loading, setLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SchemaType>({
+  const form = useForm<z.infer<typeof authSchema>>({
     resolver: zodResolver(authSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  async function signIn(data: { email: string; password: string }) {
-    try {
-      const response = await account.createSession(data.email, data.password);
-      console.log("Sign-in response:", response);
-      return response;
-    } catch (error) {
-      console.error("Sign-in error:", error);
-      throw error;
-    }
-  }
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
-  const onSubmit: SubmitHandler<SchemaType> = async (data) => {
+  const login = async (data: z.infer<typeof authSchema>) => {
+    const { email, password } = data;
     try {
-      setError(null);
-      const response = await signIn(data);
-
-      if (response) {
-        const loggedInUser = await account.get();
-        setUser(loggedInUser);
-        localStorage.setItem("user", JSON.stringify(loggedInUser));
-        localStorage.setItem("userId", loggedInUser.$id);
-        router.push("/");
-      }
+      await account.createEmailPasswordSession(email, password);
+      router.push("/anilist-signin");
     } catch (error) {
-      if (error instanceof AppwriteException) {
-        if (error.code === 401) {
-          setError("Invalid credentials. Please check the email and password.");
-        } else {
-          setError(error.message);
-        }
-      } else {
-        setError("Invalid credentials. Please check the email and password.");
-      }
-      console.log(error);
+      console.error(error);
+      setError("Failed to sign in. Please check your email and password.");
     }
   };
-
-  if (user) router.push("/");
 
   return (
     <section className="flex min-h-screen flex-col items-center justify-center p-24 gap-5">
       <h1>Sign In</h1>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-5 max-w-sm"
-      >
-        <div className="relative w-full">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            {...register("email")}
-            className="pr-8 relative"
-          />
-          <Mail className="text-muted-foreground absolute inset-y-0 right-0.5 leading-5 pr-1" />
-          {errors.email && (
-            <span className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
-              {errors.email.message}
-            </span>
-          )}
-        </div>
-        <div className="relative w-full">
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Enter your password"
-            {...register("password")}
-            className="pr-8 relative"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-1 flex items-center text-muted-foreground text-sm leading-5"
-          >
-            {showPassword ? <EyeOff /> : <Eye />}
-          </button>
-          {errors.password && (
-            <span className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
-              {errors.password.message}
-            </span>
-          )}
-        </div>
-        <div className="flex gap-5 relative justify-center">
-          <button type="submit">Login</button>
-          {error && (
-            <div className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
-              {error}
-            </div>
-          )}
-        </div>
-      </form>
-      <p>
-        Don&apos;t have an account with us?{" "}
-        <Link href="/sign-up" className="text-blue-500">
-          Sign up
-        </Link>
-      </p>
+      <Form {...form}>
+        <form
+          onSubmit={handleSubmit(login)}
+          className="flex flex-col gap-5 max-w-sm"
+        >
+          <div className="relative">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter your email"
+                      className="pr-8 relative"
+                      type="email"
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {errors.email && (
+              <span className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
+                {errors.email.message}
+              </span>
+            )}
+          </div>
+
+          <div className="relative">
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter your password"
+                      className="pr-8 relative"
+                      type={showPassword ? "text" : "password"}
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {errors.password && (
+              <span className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
+                {errors.password.message}
+              </span>
+            )}
+          </div>
+
+          <div className="flex gap-5 relative justify-center">
+            <Button type="submit">Sign In</Button>
+            {error && (
+              <div className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
+                {error}
+              </div>
+            )}
+          </div>
+          <p>
+            Don't have an account?{" "}
+            <Link href="/sign-up" className="text-blue-500">
+              Sign up
+            </Link>
+          </p>
+        </form>
+      </Form>
+      <ClearCacheButton />
     </section>
   );
 }

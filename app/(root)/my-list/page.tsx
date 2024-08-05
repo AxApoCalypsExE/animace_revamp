@@ -15,11 +15,11 @@ const MyList = () => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-x-[1vw]">
-                <Filter className="w-[0.75vw] h-auto" />
+                <Filter className="w-[1vw] h-auto" />
                 <h1>Filter</h1>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem>Title</DropdownMenuItem>
+                <DropdownMenuItem>Anime</DropdownMenuItem>
                 <DropdownMenuItem>Characters</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -27,11 +27,11 @@ const MyList = () => {
           <h1>My List</h1>
           <div />
         </div>
-        <div className="grid grid-cols-8 gap-4 mt-4">
+        <div className="grid grid-cols-8 max-lg:grid-cols-4 gap-[1vw] mt-[1vw]">
           {Array.from({ length: 40 }).map((_, index) => (
             <div
               key={index}
-              className="w-[10vw] h-[18vw] max-md:w-[20vw] bg-slate-800 rounded animate-pulse"
+              className="w-[10vw] h-[18vw] max-lg:w-[20vw] max-lg:h-[36vw] bg-slate-800 rounded animate-pulse"
             />
           ))}
         </div>

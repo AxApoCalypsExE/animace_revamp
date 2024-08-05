@@ -1,24 +1,39 @@
-import React from "react";
+"use client";
+
+import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import { getLoggedInUser } from "../appwrite";
-import { redirect } from "next/navigation";
-import { UserProvider } from "@/lib/UserContext";
+import { useRouter } from "next/navigation";
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getLoggedInUser();
+  const router = useRouter();
 
-  if (!user) redirect("/sign-up");
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const user = await getLoggedInUser();
+        if (user) {
+          console.log(`User logged in: ${user}`);
+          router.push("/");
+        } else {
+          router.push("/sign-up");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-  redirect("/account");
+    getUser();
+  }, [router]);
 
   return (
-      <main>
-        <Navbar />
-        <div>{children}</div>
-      </main>
+    <main>
+      <Navbar />
+      <div>{children}</div>
+    </main>
   );
 }

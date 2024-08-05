@@ -54,7 +54,6 @@ const Navbar = () => {
 
   const handleActive = () => {
     setActive((prevActive) => !prevActive);
-    console.log(active);
   };
 
   const handleFilterChange = (newFilter: string) => {
@@ -182,7 +181,7 @@ const Navbar = () => {
                     <DropdownMenuItem
                       onClick={() => handleFilterChange("title")}
                     >
-                      Title
+                      Anime
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleFilterChange("characters")}

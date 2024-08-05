@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { account, databases, ID } from "@/app/appwrite";
 import { Models } from "appwrite";
 import { useRouter } from "next/navigation";
+import ClearCacheButton from "@/components/ClearCache";
 
 const authSchema = z.object({
   name: z.string().min(1, { message: "Username is required" }),
@@ -179,9 +180,7 @@ export default function SignUp() {
           </p>
         </form>
       </Form>
-      <button onClick={logout}>
-        Logout
-      </button>
+      <ClearCacheButton />
     </section>
   );
 }
