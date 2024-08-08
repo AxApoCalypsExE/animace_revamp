@@ -1,6 +1,7 @@
 "use client";
 
-import { account, getLoggedInUser } from "@/app/appwrite";
+import { databases, getLoggedInUser, ID } from "@/app/appwrite";
+import { Permission, Role } from "appwrite";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface Media {
@@ -17,7 +18,6 @@ interface Media {
   startDate: {
     year: number;
     month: number;
-    day: number;
   };
   format: string;
   coverImage: {
@@ -32,6 +32,7 @@ interface AnimeModalContextType {
   modalData: Media | null;
   openModal: (data: Media) => void;
   closeModal: () => void;
+  userId: string | null;
 }
 
 const AnimeModalContext = createContext<AnimeModalContextType | undefined>(
@@ -59,11 +60,13 @@ export const AnimeModalProvider: React.FC<{ children: React.ReactNode }> = ({
     getUser();
   }, []);
 
+  console.log(modalData)
+
   const openModal = (data: Media) => setModalData(data);
   const closeModal = () => setModalData(null);
 
   return (
-    <AnimeModalContext.Provider value={{ modalData, openModal, closeModal }}>
+    <AnimeModalContext.Provider value={{ modalData, openModal, closeModal, userId }}>
       {children}
     </AnimeModalContext.Provider>
   );
@@ -76,20 +79,3 @@ export const useAnimeModal = () => {
   }
   return context;
 };
-
-// {
-//   "userId": "userId123",
-//   "animeId": "animeId123",
-// "title": "Anime Title",
-// "coverImage": "https://link-to-cover-image.com",
-// "description": "This is an anime description.",
-// "genres": ["Action", "Adventure"],
-// "tags": ["Tag1", "Tag2"],
-// "characters": ["Character1", "Character2"],
-// "startDate": "2024-01-01",
-// "episodes": 24,
-// "duration": 24,
-// "status": "Finished"
-// format
-// kitsuCoverImage
-// }

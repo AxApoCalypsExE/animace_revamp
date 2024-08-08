@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 import { gsap } from "gsap";
 import { useAnimeModal } from "@/lib/AnimeModalContext";
 import { stripHtmlTags } from "@/lib/utils";
+import AddAnimeButton from "./AddAnimeList";
 
 const AnimeModal = () => {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -91,6 +92,7 @@ const AnimeModal = () => {
                 .map((edge) => edge.node.name.full)
                 .join(", ")}
             </div>
+            <AddAnimeButton />
           </div>
           <div className="w-[40vw]">
             <div className="text-gray-400 flex justify-between">

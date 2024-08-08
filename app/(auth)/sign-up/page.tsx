@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Link from "next/link";
@@ -14,10 +14,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { account, databases, ID } from "@/app/appwrite";
+import { account, databases, getLoggedInUser, ID } from "@/app/appwrite";
 import { Models } from "appwrite";
 import { useRouter } from "next/navigation";
 import ClearCacheButton from "@/components/ClearCache";
+import { createAdminClient } from "@/lib/appwrite";
 
 const authSchema = z.object({
   name: z.string().min(1, { message: "Username is required" }),
@@ -41,6 +42,7 @@ export default function SignUp() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [loggedInUser, setLoggedInUser] =
     useState<Models.User<Models.Preferences> | null>(null);
@@ -63,7 +65,7 @@ export default function SignUp() {
     const user = await account.get();
     setLoggedInUser(user);
 
-    router.push("/anilist-signin")
+    router.push("/anilist-signin");
   };
 
   const logout = async () => {
@@ -71,12 +73,43 @@ export default function SignUp() {
     setLoggedInUser(null);
   };
 
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const user = await getLoggedInUser();
+        if (user) {
+          setUserId(user.$id);
+        }
+      } catch (error) {
+        console.error("Error fetching logged-in user:", error);
+      }
+    };
+
+    getUser();
+  }, []);
+
   const register = async (data: z.infer<typeof authSchema>) => {
     const { name, email, password } = data;
     console.log("Received data:", { name, email, password });
 
     const newUser = await account.create(ID.unique(), email, password);
     console.log("New user created:", newUser);
+
+    try {
+      const response = await databases.createDocument(
+        process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID as string,
+        process.env.NEXT_PUBLIC_APPWRITE_USER_COLLECTION_ID as string,
+        ID.unique(),
+        {
+          email,
+          userId,
+        }
+      );
+      console.log("User added successfully:", response);
+    } catch (error) {
+      console.log(error);
+      router.push("/sign-up")
+    }
 
     login(email, password);
   };
