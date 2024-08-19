@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { getLoggedInUser } from "../appwrite";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Models } from "appwrite";
 
 export default function RootLayout({
   children,
@@ -12,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<Models.User<Models.Preferences> | null>(null);
 
   useEffect(() => {
     const getUser = async () => {
