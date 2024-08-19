@@ -60,8 +60,6 @@ export const AnimeModalProvider: React.FC<{ children: React.ReactNode }> = ({
     getUser();
   }, []);
 
-  console.log(modalData)
-
   const openModal = (data: Media) => setModalData(data);
   const closeModal = () => setModalData(null);
 

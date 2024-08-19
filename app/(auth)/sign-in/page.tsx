@@ -119,14 +119,13 @@ export default function SignIn() {
             )}
           </div>
           <p>
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/sign-up" className="text-blue-500">
               Sign up
             </Link>
           </p>
         </form>
       </Form>
-      <ClearCacheButton />
     </section>
   );
 }

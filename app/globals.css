@@ -1,10 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap");
 
 :root {
-  --font-raleway: 'Raleway', sans-serif;
+  --font-raleway: "Raleway", sans-serif;
 }
 
 input {
@@ -95,11 +95,9 @@ body {
   white-space: nowrap;
 }
 
-
-
 @layer base {
   * {
-    @apply border-border
+    @apply border-border;
   }
 
   body {
@@ -109,19 +107,19 @@ body {
 
 @layer utilities {
   .bg-purple {
-    @apply bg-[#a591ff]
+    @apply bg-[#a591ff];
   }
 
   .navbarBg {
-    @apply to-slate-950/60 from-slate-900/60 bg-gradient-to-br bg-slate-900
+    @apply to-slate-950/60 from-slate-900/60 bg-gradient-to-br bg-slate-900;
   }
 
   .fade-top {
-    @apply content-none from-slate-950 to-slate-900/0 w-full h-[8vw] fixed z-[9999] bg-gradient-to-b
+    @apply content-none from-slate-950 to-slate-900/0 w-full h-[8vw] fixed z-[9999] bg-gradient-to-b;
   }
 
   .fade-bottom {
-    @apply content-none from-slate-950 to-slate-900/0 w-full h-[8vw] absolute bg-gradient-to-t
+    @apply content-none from-slate-950 to-slate-900/0 w-full h-[8vw] absolute bg-gradient-to-t;
   }
 
   .flex-center {

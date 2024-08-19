@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getLoggedInUser } from "@/app/appwrite";
+import Image from "next/image";
 
 const AniListCallback = () => {
   const router = useRouter();
@@ -47,7 +48,11 @@ const AniListCallback = () => {
     }
   }, [router, userId]);
 
-  return <div>Loading...</div>;
+  return (
+    <div className="flex-center h-screen">
+      <Image src="/AnimAceLogo.svg" alt="logo" width={30} height={30} className="w-[30vw] animate-scale-pulse" />
+    </div>
+  );
 };
 
 export default AniListCallback;

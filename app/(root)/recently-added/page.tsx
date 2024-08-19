@@ -58,8 +58,13 @@ async function fetchCarouselsData() {
         const title = anime.title.english || anime.title.romaji;
         try {
           const kitsuResult = await fetchKitsuData(anime.title.romaji);
-          const kitsuCoverImage =
-            kitsuResult.data[0]?.attributes?.coverImage?.original || "";
+          let kitsuCoverImage =
+            kitsuResult?.data?.[0]?.attributes?.coverImage?.original || "";
+
+          kitsuCoverImage = kitsuCoverImage.replace(
+            "media.kitsu.io",
+            "media.kitsu.app"
+          );
           return { ...anime, kitsuCoverImage };
         } catch (error) {
           console.error(`Error fetching Kitsu data for ${title}:`, error);
@@ -90,19 +95,19 @@ export default async function Home() {
   const randomAnime = getRandomAnime(allAnimes);
 
   return (
-      <AnimeModalProvider>
-        <section className="max-xl:max-h-screen">
-          <div className="w-[100vw]">
-            <Hero data={randomAnime} />
-            <div className="absolute -translate-y-[17vw] w-[100vw]">
-              <CarouselAnimes genre="action" data={carouselsData["action"]} />
-              <CarouselAnimes genre="romance" data={carouselsData["romance"]} />
-              <CarouselAnimes genre="horror" data={carouselsData["horror"]} />
-              <CarouselAnimes genre="sports" data={carouselsData["sports"]} />
-            </div>
+    <AnimeModalProvider>
+      <section className="max-xl:max-h-screen">
+        <div className="w-[100vw]">
+          <Hero data={randomAnime} />
+          <div className="absolute -translate-y-[17vw] w-[100vw]">
+            <CarouselAnimes genre="action" data={carouselsData["action"]} />
+            <CarouselAnimes genre="romance" data={carouselsData["romance"]} />
+            <CarouselAnimes genre="horror" data={carouselsData["horror"]} />
+            <CarouselAnimes genre="sports" data={carouselsData["sports"]} />
           </div>
-        </section>
-        <AnimeModal />
-      </AnimeModalProvider>
+        </div>
+      </section>
+      <AnimeModal />
+    </AnimeModalProvider>
   );
 }

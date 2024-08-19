@@ -33,14 +33,18 @@ interface HeroProps {
 
 
 const Hero = ({ data }: HeroProps) => {
+  console.log(data.kitsuCoverImage)
   return (
     <>
     <div className="fade-top top-0 left-0" />
       <section className="relative aspect-w-16 aspect-h-8 w-full max-h-[55vw]">
         <div className="aspect-w-16 aspect-h-8 w-full h-full relative">
-          <div
+        <Image
             className="bg-cover bg-top bg-no-repeat"
-            style={{ backgroundImage: `url(${data.kitsuCoverImage || data.coverImage.extraLarge})` }}
+            src={data.kitsuCoverImage || data.coverImage.extraLarge}
+            width={1000}
+            height={1000}
+            alt="hero image"
           />
           <HeaderBox data={data} />
         </div>

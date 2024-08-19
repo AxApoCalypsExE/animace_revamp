@@ -87,15 +87,15 @@ const CarouselAnimes: React.FC<CarouselProps> = ({ genre, data }) => {
           {carouselData.map((anime, index) => (
             <CarouselItem key={index} className="hover:z-[99999] basis-1/7">
               <div
-                className="group flex items-end justify-center w-[17vw] h-[23vw] relative transition-transform duration-200 hover:scale-[1.15] cursor-pointer"
+                className="rounded group flex items-end justify-center w-[17vw] h-[23vw] relative transition-transform duration-200 hover:scale-[1.15] cursor-pointer overflow-hidden"
                 onClick={() => openModal(anime)}
               >
                 <Image
                   src={anime.coverImage.extraLarge || anime.kitsuCoverImage || fallbackImage}
                   alt={`${anime.title.english || anime.title.romaji} cover`}
-                  layout="fill"
-                  objectFit="cover"
-                  className="rounded"
+                  width={1000}
+                  height={1000}
+                  className="w-full"
                 />
                 <h1 className="text-center opacity-0 transition-opacity duration-200 group-hover:opacity-100 bg-slate-900/90 absolute z-[99999] w-full">
                   {anime.title.english || anime.title.romaji}

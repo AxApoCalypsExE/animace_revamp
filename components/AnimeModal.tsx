@@ -1,25 +1,33 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { CheckCircle, X } from "lucide-react";
 import { gsap } from "gsap";
 import { useAnimeModal } from "@/lib/AnimeModalContext";
 import { stripHtmlTags } from "@/lib/utils";
 import AddAnimeButton from "./AddAnimeList";
+import { databases } from "@/app/appwrite";
+import { Query } from "appwrite";
+import { isAnimeInList } from "@/lib/CheckIfAnimeInList";
 
 const AnimeModal = () => {
   const modalRef = useRef<HTMLDivElement>(null);
   const modalRefBg = useRef<HTMLDivElement>(null);
-  const { modalData, closeModal } = useAnimeModal();
+  const { modalData, closeModal, userId } = useAnimeModal();
+  const [isInList, setIsInList] = useState(false);
 
   useEffect(() => {
-    if (modalData) {
+    if (modalData && userId) {
       document.body.style.overflowY = "hidden";
+
+      isAnimeInList(userId, modalData.id).then((inList) => {
+        setIsInList(inList);
+      });
     } else {
       document.body.style.overflowY = "auto";
     }
-  }, [modalData]);
+  }, [modalData, userId]);
 
   const handleClose = () => {
     if (modalRefBg.current) {
@@ -45,6 +53,7 @@ const AnimeModal = () => {
   };
 
   if (!modalData) return null;
+  console.log(modalData)
 
   return (
     <div
@@ -61,7 +70,6 @@ const AnimeModal = () => {
             alt="cover"
             width={300}
             height={200}
-            objectFit="contain"
             className="h-full w-full"
           />
           <X
@@ -92,7 +100,14 @@ const AnimeModal = () => {
                 .map((edge) => edge.node.name.full)
                 .join(", ")}
             </div>
-            <AddAnimeButton />
+            {!isInList ? (
+              <AddAnimeButton />
+            ) : (
+              <div className="flex items-center">
+                <CheckCircle className="w-[2vw] h-auto text-green-500" />
+                <span className="ml-[0.5vw]">Added to List</span>
+              </div>
+            )}
           </div>
           <div className="w-[40vw]">
             <div className="text-gray-400 flex justify-between">
@@ -101,7 +116,9 @@ const AnimeModal = () => {
               <span>{modalData.duration} mins</span>
               <span>{modalData.status}</span>
             </div>
-            <div className="text-[1.25vw]">{stripHtmlTags(modalData.description)}</div>
+            <div className="text-[1.25vw]">
+              {stripHtmlTags(modalData.description)}
+            </div>
           </div>
         </div>
       </div>

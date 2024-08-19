@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { account, databases, getLoggedInUser, ID } from "@/app/appwrite";
-import { Models } from "appwrite";
+import { Models, Permission, Role } from "appwrite";
 import { useRouter } from "next/navigation";
 import ClearCacheButton from "@/components/ClearCache";
 import { createAdminClient } from "@/lib/appwrite";
@@ -92,10 +92,12 @@ export default function SignUp() {
     const { name, email, password } = data;
     console.log("Received data:", { name, email, password });
 
-    const newUser = await account.create(ID.unique(), email, password);
-    console.log("New user created:", newUser);
-
     try {
+      const newUser = await account.create(ID.unique(), email, password);
+      console.log("New user created:", newUser);
+
+      const userId = newUser.$id;
+
       const response = await databases.createDocument(
         process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID as string,
         process.env.NEXT_PUBLIC_APPWRITE_USER_COLLECTION_ID as string,
@@ -105,13 +107,13 @@ export default function SignUp() {
           userId,
         }
       );
-      console.log("User added successfully:", response);
-    } catch (error) {
-      console.log(error);
-      router.push("/sign-up")
-    }
+      console.log("User added to the database successfully:", response);
 
-    login(email, password);
+      await login(email, password);
+    } catch (error) {
+      console.error("Registration error:", error);
+      setError((error as Error).message);
+    }
   };
 
   return (
@@ -200,7 +202,7 @@ export default function SignUp() {
           <div className="flex gap-5 relative justify-center">
             <Button type="submit">Register</Button>
             {error && (
-              <div className="absolute -bottom-4 text-red-500 left-0 text-[8px]">
+              <div className="absolute -bottom-5 text-red-500 left-0 text-[7px]">
                 {error}
               </div>
             )}
@@ -213,7 +215,6 @@ export default function SignUp() {
           </p>
         </form>
       </Form>
-      <ClearCacheButton />
     </section>
   );
 }

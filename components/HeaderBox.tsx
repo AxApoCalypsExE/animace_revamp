@@ -95,7 +95,6 @@ const HeaderBox = ({ data }: HeaderBoxProps) => {
             <Info className="w-[1.75vw] h-[1.75vw] mr-[0.2vw]" />
             Info
           </button>
-          <ClearCacheButton />
         </div>
       </div>
     </div>

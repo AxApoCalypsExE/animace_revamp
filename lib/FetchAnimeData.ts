@@ -62,7 +62,7 @@ export const fetchKitsuData = async (title: string) => {
   // }
 
 
-  const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(title)}`;
+  const url = `https://kitsu.io/api/edge/anime?filter[text]=${title}`;
 
   const options = {
     method: "GET",

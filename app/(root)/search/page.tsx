@@ -54,7 +54,7 @@ interface Character {
   };
 }
 
-const fallbackImage = "/path/to/fallback-image.jpg"; // Replace with actual fallback image path
+const fallbackImage = "/path/to/fallback-image.jpg";
 
 const SearchPageContent = () => {
   const router = useRouter();
@@ -67,9 +67,6 @@ const SearchPageContent = () => {
   const { openCharacterModal } = useAnimeModalCharacter();
 
   useEffect(() => {
-    console.log("Query:", query);
-    console.log("Filter:", filter);
-
     let searchQuery = "";
     if (query && filter === "characters") {
       searchQuery = `
@@ -139,18 +136,15 @@ const SearchPageContent = () => {
       `;
     }
 
-    console.log("Search Query:", searchQuery);
     if (searchQuery) {
       fetchAniListData(searchQuery)
         .then(async (data) => {
-          console.log("Fetched Data:", data);
           let results = [];
           if (filter === "characters" && data.data.Page.characters) {
             results = data.data.Page.characters;
           } else if (filter === "title" && data.data.Page.media) {
             results = data.data.Page.media;
           } else {
-            console.log("No results found");
             setSearchResults([]);
             setLoading(false);
             return;
@@ -162,11 +156,20 @@ const SearchPageContent = () => {
                 const title = item.title.english || item.title.romaji;
                 try {
                   const kitsuResult = await fetchKitsuData(item.title.romaji);
-                  const kitsuCoverImage =
-                    kitsuResult.data[0]?.attributes?.coverImage?.original || "";
+                  let kitsuCoverImage =
+                    kitsuResult?.data?.[0]?.attributes?.coverImage?.original ||
+                    "";
+
+                  kitsuCoverImage = kitsuCoverImage.replace(
+                    "media.kitsu.io",
+                    "media.kitsu.app"
+                  );
                   return { ...item, kitsuCoverImage };
                 } catch (error) {
-                  console.error(`Error fetching Kitsu data for ${title}:`, error);
+                  console.error(
+                    `Error fetching Kitsu data for ${title}:`,
+                    error
+                  );
                   return { ...item, kitsuCoverImage: "" };
                 }
               }
@@ -184,9 +187,7 @@ const SearchPageContent = () => {
     }
   }, [query, filter]);
 
-  useEffect(() => {
-    console.log("Search Results:", searchResults);
-  }, [searchResults]);
+  useEffect(() => {}, [searchResults]);
 
   const isAnime = (result: Character | Anime): result is Anime => {
     return (result as Anime).title !== undefined;
@@ -217,13 +218,18 @@ const SearchPageContent = () => {
                       {result.title.english || result.title.romaji}
                     </CardTitle>
                   </CardHeader>
-                  <div className="z-10 w-full h-0 pb-[150%]">
+                  <div className="relative w-full pb-[150%]">
+                    {" "}
                     <Image
-                      src={result.coverImage.extraLarge || result.kitsuCoverImage || fallbackImage}
+                      src={
+                        result.coverImage.extraLarge ||
+                        result.kitsuCoverImage ||
+                        fallbackImage
+                      }
                       alt={result.title.english || result.title.romaji}
-                      layout="fill"
-                      objectFit="cover"
-                      className="rounded"
+                      className="absolute inset-0 w-full h-full object-cover rounded"
+                      width={1000}
+                      height={1500}
                     />
                   </div>
                 </Card>
@@ -253,9 +259,9 @@ const SearchPageContent = () => {
                     <Image
                       src={result.image.large || fallbackImage}
                       alt={result.name.full}
-                      layout="fill"
-                      objectFit="cover"
-                      className="rounded"
+                      width={50}
+                      height={50}
+                      className="w-full"
                     />
                   </div>
                 </Card>

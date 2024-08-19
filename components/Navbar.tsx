@@ -104,30 +104,15 @@ const Navbar = () => {
   };
 
   const handleLogout = async () => {
+    localStorage.clear();
+
     try {
       await account.deleteSession("current");
-      localStorage.clear();
-      try {
-        const response = await fetch("/api/auth/logout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+      console.log("Session deleted successfully");
 
-        if (response.ok) {
-          alert(
-            "Cache and session cleared! Reload the page to see the changes."
-          );
-          router.push("/sign-up");
-        } else {
-          console.error("Failed to clear session");
-        }
-      } catch (error) {
-        console.error("Error clearing session:", error);
-      }
+      router.push("/sign-up");
     } catch (error) {
-      console.log(error);
+      console.error("Error deleting session:", error);
     }
   };
 
@@ -142,6 +127,7 @@ const Navbar = () => {
         <div className="ml-[3vw] flex items-center py-[1vw] cursor-pointer">
           <Image
             src="/AnimAceLogo2.svg"
+            priority
             alt="logo"
             width={30}
             height={20}
@@ -149,15 +135,22 @@ const Navbar = () => {
             onClick={handleHome}
           />
           <div className="flex gap-[1.2vw] text-[1vw]">
-            <Link href="/">Home</Link>
-            <Link href="/movies">Movies</Link>
-            <Link href="/recently-added">Recently Added</Link>
-            <Link
-              href="/my-list"
-              // className="cursor-not-allowed"
-            >
-              My List
-            </Link>
+            <div className="relative group">
+              <Link href="/">Home</Link>
+              <div className="absolute left-0 bottom-0 h-[1px] w-0 bg-white transition-all ease-in-out duration-300 group-hover:w-full"></div>
+            </div>
+            <div className="relative group">
+              <Link href="/movies">Movies</Link>
+              <div className="absolute left-0 bottom-0 h-[1px] w-0 bg-white transition-all ease-in-out duration-300 group-hover:w-full"></div>
+            </div>
+            <div className="relative group">
+              <Link href="/recently-added">Recently Added</Link>
+              <div className="absolute left-0 bottom-0 h-[1px] w-0 bg-white transition-all ease-in-out duration-300 group-hover:w-full"></div>
+            </div>
+            <div className="relative group">
+              <Link href="/my-list">My List</Link>
+              <div className="absolute left-0 bottom-0 h-[1px] w-0 bg-white transition-all ease-in-out duration-300 group-hover:w-full"></div>
+            </div>
           </div>
         </div>
         <div className="mr-[3vw] flex items-center gap-[1.2vw]">
@@ -200,7 +193,7 @@ const Navbar = () => {
           <button onClick={handleActive} className="cursor-pointer">
             <Search className="w-[2vw]" />
           </button>
-          <button className="cursor-pointer">
+          <button className="cursor-not-allowed">
             <Bell className="w-[2vw]" />
           </button>
           <DropdownMenu>
@@ -209,9 +202,14 @@ const Navbar = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem>
-                <Link href="/profile">Profile</Link>
+                <Link className="cursor-not-allowed" href="/">
+                  Profile
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout}>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={handleLogout}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </DropdownMenuItem>

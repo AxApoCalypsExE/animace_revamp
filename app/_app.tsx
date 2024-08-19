@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import type { AppProps } from "next/app";
-import { UserProvider } from "@/lib/UserContext";
 
 function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
